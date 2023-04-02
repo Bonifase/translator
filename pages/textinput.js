@@ -7,28 +7,34 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 
 import { useState } from "react";
+import axios from "axios";
 
 import styles from '../styles/Home.module.css';
 
 function TextInput() {
     const languages = ['Dholuo', 'Swahili', 'Kikuyu'];
-    const [data, setData] = useState({
-        inputLanguage: '',
-        outPutLanguage: '',
-        inputText: '',
-        outPutText: ''
+    const [intputData, setIntputData] = useState({
+        source: '',
+        target: '',
+        text: ''
     });
+    const [translatedCode, setTranslatedCode] = useState("");
 
-    const onSubmit = e => {
+    const onSubmit = async e => {
         e.preventDefault();
-        console.log(data);
+        try {
+            const res = await axios.post('http://127.0.0.1:8000/api/translate/', intputData)
+            setTranslatedCode(res.data.target)
+        } catch (err) {
+            console.dir(err)
+        }
     }
 
     const onTextInput = e => {
         e.preventDefault();
-        const newData = {...data}
+        const newData = {...intputData}
         newData[e.target.name] = e.target.value;
-        setData(newData);
+        setIntputData(newData);
     }
   return (
     <Container>
@@ -38,18 +44,17 @@ function TextInput() {
             <Col xs={6}>
                 <Form.Group className="mb-3">
                     <Form.Select
-                    name="inputLanguage"
-                    value={data.inputLanguage}
+                    name="source"
+                    value={intputData.source}
                     onChange={(e) => onTextInput(e)}
                     >
                         <option>Select Input language</option>
                         {languages.map((language, key) => <option key={key}>{language}</option>)}
                     </Form.Select>
                     <InputGroup>
-                        <InputGroup.Text></InputGroup.Text>
                         <Form.Control
-                            name="inputText"
-                            value={data.inputText}
+                            name="text"
+                            value={intputData.text}
                             onChange={(e) => onTextInput(e)}
                             className={styles.display}
                             as="textarea"
@@ -60,18 +65,17 @@ function TextInput() {
             </Col>
             <Col xs={6}>
                 <Form.Select
-                    name="outPutLanguage"
-                    value={data.outPutLanguage}
+                    name="target"
+                    value={intputData.target}
                     onChange={(e) => onTextInput(e)}
                     >
                     <option>Output Language</option>
                     {languages.map((language, key) => <option key={key}>{language}</option>)}
                 </Form.Select>
                 <InputGroup>
-                    <InputGroup.Text></InputGroup.Text>
                     <Form.Control
                             name="outputText"
-                            value={data.outputText}
+                            value={translatedCode}
                             onChange={(e) => onTextInput(e)}
                             className={styles.display}
                             as="textarea"
